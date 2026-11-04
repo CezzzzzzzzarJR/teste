@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="m-style-cadastro.css" />
+</head>
+
+<body>
+
+    <nav class="menu">
+        <a class="link" href="index.html">Home</a>
+        <a class="link" href="i-galeria.html">Galeria</a>
+        <a class="link" href="i-chat.html">Chat</a>
+        <a class="link" href="i-login.html">Log-in</a>
+        <a class="link" href="i-cadastro.html">Cadastro</a>
+    </nav>
+
+    <div class="conteiner-cadastro">
+        <div class="conteiner-ch1">
+            <h2>Cadastro</h2><br>
+        </div>
+
+        <div class="cadastro-envio">
+            <label for="cadUsuario">Nome de Usuário</label><br>
+            <input type="text" id="cadUsuario" placeholder="Digite seu nome" required><br><br>
+
+            <label for="cadEmail">Email</label><br>
+            <input type="email" id="cadEmail" placeholder="Digite seu email" required><br><br>
+
+            <label for="cadSenha">Senha</label><br>
+            <input type="password" id="cadSenha" placeholder="Digite sua senha" required><br><br>
+
+            <button id="btnCadastro">Enviar</button>
+            <div id="cadMensagem" class="mensagem"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>CZR - Copyright</p>
+    </footer>
+
+    <script>
+        const btnCadastro = document.querySelector('#btnCadastro');
+        const cadMensagem = document.querySelector('#cadMensagem');
+
+        btnCadastro.addEventListener('click', async () => {
+
+            const usuarioEntrada = document.querySelector('#cadUsuario');
+            const emailEntrada = document.querySelector('#cadEmail');
+            const senhaEntrada = document.querySelector('#cadSenha');
+
+            const usuario = usuarioEntrada.value.trim();
+            const email = emailEntrada.value.trim();
+            const senha = senhaEntrada.value;
+
+            if (!usuario || !email || !senha) {
+                cadMensagem.innerText = 'Preencha todos os campos antes de enviar!';
+                cadMensagem.style.color = 'red';
+                return;
+            }
+
+            cadMensagem.innerText = 'Enviando dados...';
+            cadMensagem.style.color = 'orange';
+            btnCadastro.disabled = true;
+
+            try {
+                const respostaBE = await fetch('http://localhost:10000/cadastro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario: usuario,
+                        email: email,
+                        senha: senha
+                    })
+                });
+
+                const dados = await respostaBE.json();
+
+                if (!respostaBE.ok) {
+                    cadMensagem.innerText = dados.erro;
+                    cadMensagem.style.color = 'red';
+                    return;
+                }
+
+                // Cadastro realizado, mas ainda não está logado
+                localStorage.removeItem('usuarioLogado');
+                localStorage.removeItem('usuarioEntrada');
+
+                cadMensagem.innerText = 'Cadastro realizado com sucesso! Redirecionando para o login...';
+                cadMensagem.style.color = 'green';
+
+                usuarioEntrada.value = '';
+                emailEntrada.value = '';
+                senhaEntrada.value = '';
+
+                setTimeout(() => {
+                    window.location.href = 'i-login.html';
+                }, 1500);
+
+            } catch (erro) {
+                console.error('Erro na requisição:', erro);
+                cadMensagem.innerText = 'Erro ao conectar com o servidor!!';
+                cadMensagem.style.color = 'red';
+
+            } finally {
+                btnCadastro.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>
