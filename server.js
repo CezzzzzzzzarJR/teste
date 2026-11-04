@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 const app = express()
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 
 const PORT = process.env.PORT || 10000
 const MODELO = 'openai/gpt-oss-120b'
