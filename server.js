@@ -1,12 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-const app = express()
 
+const app = express();
 
-const PORT = process.env.PORT || 10000
-const MODELO = 'openai/gpt-oss-120b'
-const URL_API = 'https://api.groq.com/openai/v1/chat/completions'
+// O Render injeta dinamicamente a variável process.env.PORT (que costuma ser a 10000)
+const PORT = process.env.PORT || 10000;
+const MODELO = 'openai/gpt-oss-120b';
+const URL_API = 'https://groq.com';
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -16,7 +17,7 @@ const user = [];
 
 app.get('/', (req, res) => {
     return res.json(user);
-})
+});
 
 app.post('/cadastro', (req, res) => {
     const { usuario, email, senha } = req.body;
@@ -41,7 +42,7 @@ app.post('/cadastro', (req, res) => {
         });
     }
 
-    console.log(`Recebido, aguarde 5 segundo`);
+    console.log(`Recebido, aguarde 5 segundos`);
 
     user.push({ usuario, email, senha });
 
@@ -71,29 +72,21 @@ app.post('/login', (req, res) => {
     return res.json({
         mensagem: "Login realizado com Sucesso!!",
         usuario: emailExiste.email
-    })
-
+    });
 });
-
-
-
 
 app.post('/chat', async (req, res) => {
     try {
-        const API_KEY = process.env.GROQAPI_KEY
-        const historico = req.body.historico
+        const API_KEY = process.env.GROQAPI_KEY;
+        const historico = req.body.historico;
 
         const persona = [
             {
                 "role": "system",
                 "content": "responda em poucas palavras, Você é o James, um mecânico experiente e amigável, ja correu por muitos anos no kart e é um campeão nato, sempre disposto a ajudar os outros com seus conhecimentos, responda de maneira bem curta e humorada."
-
             }
-
-
-        ]
-        persona.push(...historico)
-
+        ];
+        persona.push(...historico);
 
         const respostaSenna = await fetch(URL_API, {
             method: 'POST',
@@ -104,30 +97,23 @@ app.post('/chat', async (req, res) => {
             body: JSON.stringify({
                 model: MODELO,
                 messages: persona
-
             })
         });
-
-
-
 
         const resultado = await respostaSenna.json();
 
         if (!respostaSenna.ok) {
-            return res.status(500).json({ "erro": "Erro de comunicação com a GROQ" })
-
+            return res.status(500).json({ "erro": "Erro de comunicação com a GROQ" });
         }
 
         return res.json({ resposta: resultado.choices[0].message.content });
 
+    } catch (erro) {
+        return res.status(500).json({ "erro": "Falha interna da GROQ" });
     }
+});
 
-    catch (erro) {
-        return res.status(500).json({ "erro": "Falha interna da GROQ" })
-        
-    }
-})
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+// MODIFICAÇÃO AQUI: adicionado '0.0.0.0' para o Render conseguir escutar a rede externa externa
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor rodando com sucesso na porta ${PORT}`);
 });
