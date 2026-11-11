@@ -80,11 +80,9 @@
                 }
 
                 // Salva que o usuário está logado
-                localStorage.setItem('usuarioLogado', 'true');
+                localStorage.setItem('usuarioLogado', dados.usuario);
 
-                // Salva o nome do usuário para o chat
-                localStorage.setItem('usuarioEntrada', dados.perfil);
-
+               
                 loginMensagem.innerText = `${dados.mensagem}: ${dados.perfil}`;
                 loginMensagem.style.color = 'green';
 
