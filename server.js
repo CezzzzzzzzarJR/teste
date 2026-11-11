@@ -7,7 +7,9 @@ const app = express();
 // O Render injeta dinamicamente a variável process.env.PORT (que costuma ser a 10000)
 const PORT = process.env.PORT || 10000;
 const MODELO = 'openai/gpt-oss-120b';
-const URL_API = 'https://groq.com';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+const URL_API = 'https://api.groq.com/openai/v1/chat/completions';
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -15,9 +17,6 @@ app.use(cors());
 
 const user = [];
 
-app.get('/', (req, res) => {
-    return res.json(user);
-});
 
 app.post('/cadastro', (req, res) => {
     const { usuario, email, senha } = req.body;
@@ -87,12 +86,13 @@ app.post('/chat', async (req, res) => {
             }
         ];
         persona.push(...historico);
+        console.log(`adicionado na pasta historico`);
 
         const respostaSenna = await fetch(URL_API, {
             method: 'POST',
             headers: {
-                'Content-Type' : 'application/json',
-                'Authorization' : `Bearer ${API_KEY}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: MODELO,
@@ -104,12 +104,15 @@ app.post('/chat', async (req, res) => {
 
         if (!respostaSenna.ok) {
             return res.status(500).json({ "erro": "Erro de comunicação com a GROQ" });
+            
         }
+        console.log(`ate aqui resposta ok`);
 
         return res.json({ resposta: resultado.choices[0].message.content });
+        
 
     } catch (erro) {
-        return res.status(500).json({ "erro": "Falha interna da GROQ" });
+        return res.status(500).json({ "erro": "Falha interna da GROQ", "motivo_real": erro.message });
     }
 });
 
