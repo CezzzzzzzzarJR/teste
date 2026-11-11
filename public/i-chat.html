@@ -37,7 +37,7 @@
         const nomeUsuario = localStorage.getItem('usuarioEntrada');
 
         document.querySelector('#boasVindas').textContent =
-            `Olá ${nomeUsuario}, seja bem vindo`;
+            `Olá ${usuarioEntrada}, seja bem vindo`;
 
         const caixaChat = document.querySelector('#caixaChat');
         const inputMensagem = document.querySelector('#mensagem');
@@ -59,7 +59,7 @@
 
             if (!textoMensagem) return;
 
-            mensagemTela(nomeUsuario, textoMensagem);
+            mensagemTela(usuarioEntrada, textoMensagem);
 
             historicoConversa.push({
                 role: "user",
